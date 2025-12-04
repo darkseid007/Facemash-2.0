@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Facemash 2.0</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #fefefe, #e5e5f5);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 10px;
+    }
+
+    .page {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #d0d0e0;
+      padding: 20px 26px 30px;
+      max-width: 960px;
+      width: 100%;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    /* headings in boxes */
+    .box-heading {
+      border: 2px solid #000;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 2px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #fafafa, #f0f0ff);
+    }
+
+    .box-heading h1,
+    .box-heading h2 {
+      font-size: 1.6rem;
+    }
+
+    .box-heading.small h2 {
+      font-size: 1.2rem;
+    }
+
+    /* nav between vote + leaderboard */
+    .nav-tabs {
+      display: flex;
+      margin-top: 14px;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      background: #f2f2ff;
+      padding: 4px;
+    }
+
+    .nav-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-radius: 999px;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+
+    .nav-tab.active {
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* voting UI */
+    .images-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 20px 0 10px;
+    }
+
+    .image-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 14px;
+      border: 1px solid #c7c7e0;
+      padding: 14px;
+      background: #fbfbff;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+      cursor: pointer;
+    }
+
+    .image-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+      border-color: #8a8adf;
+    }
+
+    .image-frame {
+      width: 100%;
+      height: 260px;
+      border-radius: 10px;
+      border: 1px dashed #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      overflow: hidden;
+      background: #fdfdfd;
+    }
+
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit:contain;
+    }
+
+    .name-label {
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .rating-mini {
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .click-hint {
+      font-size: 0.85rem;
+      color: #777;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .submit-btn {
+      padding: 8px 26px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 2px solid #000;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
+      background: #f4f4ff;
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .elo-box {
+      border-radius: 999px;
+      border: 2px solid #000;
+      padding: 7px 14px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      min-width: 260px;
+      text-align: center;
+      background: #fff;
+    }
+
+    .elo-label {
+      margin-right: 5px;
+    }
+
+    .hint {
+      margin-top: 15px;
+      font-size: 0.82rem;
+      text-align: center;
+      color: #555;
+    }
+
+    /* leaderboard */
+    .leaderboard-card {
+      border-radius: 14px;
+      border: 1px solid #c7c7e0;
+      background: #fbfbff;
+      padding: 16px;
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #ebebff;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) {
+      background: #f7f7ff;
+    }
+
+    tr:first-child td {
+      font-weight: 700;
+    }
+
+    .rank-medal {
+      font-size: 1rem;
+      margin-right: 4px;
+    }
+
+    @media (max-width: 720px) {
+      .images-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- main title -->
+    <div class="box-heading">
+      <h1>FACEMASH 2.0</h1>
+    </div>
+
+    <!-- subtitle -->
+    <div class="box-heading small">
+      <h2>WHICH GIRL IS THE CUTEST?</h2>
+    </div>
+
+    <!-- navigation tabs -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" id="tab-vote">Vote</div>
+      <div class="nav-tab" id="tab-leaderboard">Leaderboard</div>
+    </div>
+
+    <!-- VOTING SECTION -->
+    <div class="section" id="section-vote">
+      <div class="images-row">
+        <div class="image-card" id="card-left">
+          <div class="image-frame">
+            <img id="img1" src="" alt="Image 1">
+          </div>
+          <div class="name-label" id="name1">Name 1</div>
+          <div class="rating-mini" id="rating1">Rating: --</div>
+          <div class="click-hint">Click to choose</div>
+        </div>
+
+        <div class="image-card" id="card-right">
+          <div class="image-frame">
+            <img id="img2" src="" alt="Image 2">
+          </div>
+          <div class="name-label" id="name2">Name 2</div>
+          <div class="rating-mini" id="rating2">Rating: --</div>
+          <div class="click-hint">Click to choose</div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <!-- Submit now acts like "Skip / Next pair", still clickable -->
+        <button id="submitBtn" class="submit-btn">SUBMIT (Skip Pair)</button>
+
+        <div class="elo-box">
+          <span class="elo-label">ELO:</span>
+          <span id="eloValue">--</span>
+        </div>
+      </div>
+
+      <p class="hint">
+        Tap on an image to vote. Rating uses an Elo system and is saved on your device.
+      </p>
+    </div>
+
+    <!-- LEADERBOARD SECTION -->
+    <div class="section hidden" id="section-leaderboard">
+      <div class="leaderboard-card">
+        <h3 style="margin-bottom: 10px; font-weight: 700;">Overall Rankings</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+          </tbody>
+        </table>
+        <p class="hint" style="margin-top:10px;">
+          This table is updated after every vote. Higher rating ≈ more preferred.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- 1. DATA SETUP (EDIT THIS PART FOR YOUR 50 IMAGES) ----------
+    const defaultPeople = [
+      { id: 1,  name: "Disha patani",  imageUrl: "disha.jpeg",  rating: 1400 },
+      { id: 2,  name: "Kiara advani",  imageUrl: "kiara .jpeg",  rating: 1400 },
+      { id: 3,  name: "Katrina kaif",  imageUrl: "katrina.jpeg",  rating: 1400 },
+      { id: 4,  name: "Shraddha kapoor",  imageUrl: "shraddha.jpeg",  rating: 1400 },
+      { id: 5,  name: "Mouni roy",  imageUrl: "mouni.jpg",  rating: 1400 },
+      { id: 6,  name: "Tripti dimri",  imageUrl: "tripti.jpg",  rating: 1400 },
+      { id: 7,  name: "Jacqueline",  imageUrl: "jacqueline.avif",  rating: 1400 },
+      { id: 8,  name: "Nora fatehi",  imageUrl: "nora.avif",  rating: 1400 },
+      { id: 9,  name: "Mrunal thakur",  imageUrl: "mrunal.avif",  rating: 1400 },
+      { id: 10,  name: "Alexandra",  imageUrl: "alexandra.jpeg",  rating: 1400 },
+      { id: 11,  name: "Jahnvi kapoor",  imageUrl: "jahnvi.avif",  rating: 1400 },
+      { id: 12,  name: "Sydney",  imageUrl: "sydney.webp",  rating: 1400 },
+      { id: 13,  name: "Pooja hegde",  imageUrl: "pooja.jpg",  rating: 1400 },
+      // { id: 14,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 15,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 4,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 1,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 2,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 3,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // { id: 4,  name: "",  imageUrl: ".jpeg",  rating: 1400 },
+      // keep adding until e.g. id:50
+      // { id: 5, name: "Person 5", imageUrl: "images/girl5.jpg", rating: 1400 },
+      // ...
+    ];
+
+    const STORAGE_KEY = "facemashPeople_v1";
+    const K = 32; // Elo K-factor
+
+    let people = [];
+    let currentPair = [0, 1];
+
+    function loadPeople() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            people = parsed;
+            return;
+          }
+        } catch (e) {
+          console.warn("Error parsing stored ratings, using defaults.");
+        }
+      }
+      people = defaultPeople;
+    }
+
+    function savePeople() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+    }
+
+    // ---------- 2. ELO LOGIC ----------
+    function updateElo(winner, loser) {
+      const Ra = winner.rating;
+      const Rb = loser.rating;
+
+      const Ea = 1 / (1 + Math.pow(10, (Rb - Ra) / 400));
+      const Eb = 1 / (1 + Math.pow(10, (Ra - Rb) / 400));
+
+      winner.rating = Math.round(Ra + K * (1 - Ea));
+      loser.rating = Math.round(Rb + K * (0 - Eb));
+    }
+
+    // ---------- 3. UI HELPERS ----------
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+    const name1 = document.getElementById("name1");
+    const name2 = document.getElementById("name2");
+    const rating1 = document.getElementById("rating1");
+    const rating2 = document.getElementById("rating2");
+    const eloValue = document.getElementById("eloValue");
+    const leaderboardBody = document.getElementById("leaderboardBody");
+
+    function pickRandomPair() {
+      if (people.length < 2) return;
+      let i = Math.floor(Math.random() * people.length);
+      let j = Math.floor(Math.random() * people.length);
+      while (j === i) {
+        j = Math.floor(Math.random() * people.length);
+      }
+      currentPair = [i, j];
+      renderPair();
+    }
+
+    function renderPair() {
+      const left = people[currentPair[0]];
+      const right = people[currentPair[1]];
+
+      img1.src = left.imageUrl;
+      name1.textContent = left.name;
+      rating1.textContent = "Rating: " + left.rating;
+
+      img2.src = right.imageUrl;
+      name2.textContent = right.name;
+      rating2.textContent = "Rating: " + right.rating;
+
+      eloValue.textContent = `${left.name}: ${left.rating} | ${right.name}: ${right.rating}`;
+    }
+
+    function handleVote(side) {
+      const left = people[currentPair[0]];
+      const right = people[currentPair[1]];
+
+      let winner, loser;
+      if (side === "left") {
+        winner = left;
+        loser = right;
+      } else {
+        winner = right;
+        loser = left;
+      }
+
+      updateElo(winner, loser);
+      savePeople();
+      renderPair();
+      updateLeaderboard();
+      pickRandomPair();
+    }
+
+    function updateLeaderboard() {
+      const sorted = [...people].sort((a, b) => b.rating - a.rating);
+      leaderboardBody.innerHTML = "";
+      sorted.forEach((person, index) => {
+        const tr = document.createElement("tr");
+
+        const rankTd = document.createElement("td");
+        let medal = "";
+        if (index === 0) medal = "🥇 ";
+        else if (index === 1) medal = "🥈 ";
+        else if (index === 2) medal = "🥉 ";
+        rankTd.textContent = medal + (index + 1);
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = person.name;
+
+        const ratingTd = document.createElement("td");
+        ratingTd.textContent = person.rating;
+
+        tr.appendChild(rankTd);
+        tr.appendChild(nameTd);
+        tr.appendChild(ratingTd);
+
+        leaderboardBody.appendChild(tr);
+      });
+    }
+
+    // ---------- 4. NAVIGATION ----------
+    const tabVote = document.getElementById("tab-vote");
+    const tabLeaderboard = document.getElementById("tab-leaderboard");
+    const sectionVote = document.getElementById("section-vote");
+    const sectionLeaderboard = document.getElementById("section-leaderboard");
+
+    function showVote() {
+      tabVote.classList.add("active");
+      tabLeaderboard.classList.remove("active");
+      sectionVote.classList.remove("hidden");
+      sectionLeaderboard.classList.add("hidden");
+    }
+
+    function showLeaderboard() {
+      tabLeaderboard.classList.add("active");
+      tabVote.classList.remove("active");
+      sectionLeaderboard.classList.remove("hidden");
+      sectionVote.classList.add("hidden");
+      updateLeaderboard();
+    }
+
+    tabVote.addEventListener("click", showVote);
+    tabLeaderboard.addEventListener("click", showLeaderboard);
+
+    // ---------- 5. EVENT LISTENERS ----------
+    document.getElementById("card-left").addEventListener("click", () => handleVote("left"));
+    document.getElementById("card-right").addEventListener("click", () => handleVote("right"));
+
+    // submit button acts as "skip pair"
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      pickRandomPair();
+    });
+
+    // ---------- 6. INITIALIZE ----------
+    loadPeople();
+    pickRandomPair();
+    updateLeaderboard();
+  </script>
+</body>
+</html>
